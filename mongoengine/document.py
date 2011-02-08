@@ -56,18 +56,25 @@ class Document(BaseDocument):
 
     __metaclass__ = TopLevelDocumentMetaclass
 
-    def save(self, safe=True, force_insert=False, validate=True):
+    def save(self, safe=True, force_insert=False, validate=True, **kwargs):
         """Save the :class:`~mongoengine.Document` to the database. If the
         document already exists, it will be updated, otherwise it will be
         created.
 
         If ``safe=True`` and the operation is unsuccessful, an 
         :class:`~mongoengine.OperationError` will be raised.
+        
+        Extra keyword arguments are passed down to :meth:`~pymongo.collection.Collection.save` OR
+        :meth:`~pymongo.collection.Collection.insert` which will be used as options for the resultant ``getLastError`` command.
+        For example, ``save(..., w=2, fsync=True)`` will wait until at least two servers
+        have recorded the write and will force an fsync on each server being written to.
 
         :param safe: check if the operation succeeded before returning
         :param force_insert: only try to create a new document, don't allow 
             updates of existing documents
         :param validate: validates the document; set to ``False`` for skiping
+        :param kwargs: extra keyword arguments for :meth:`~pymongo.collection.Collection.save`
+            or :meth:`~pymongo.collection.Collection.insert`
         """
         if validate:
             self.validate()
@@ -75,9 +82,9 @@ class Document(BaseDocument):
         try:
             collection = self.__class__.objects._collection
             if force_insert:
-                object_id = collection.insert(doc, safe=safe)
+                object_id = collection.insert(doc, safe=safe, **kwargs)
             else:
-                object_id = collection.save(doc, safe=safe)
+                object_id = collection.save(doc, safe=safe, **kwargs)
         except pymongo.errors.OperationFailure, err:
             message = 'Could not save document (%s)'
             if u'duplicate key' in unicode(err):

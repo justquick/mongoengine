@@ -623,6 +623,18 @@ class DocumentTest(unittest.TestCase):
         self.assertEqual(author.age, 25)
 
         BlogPost.drop_collection()
+        
+    def test_fsync(self):
+        """Test that passing fsync kwarg to .save works"""
+        class BlogPost(Document):
+            meta = {'collection': 'blogpost_1'}
+            content = StringField()
+            author = ReferenceField(self.Person)
+
+        BlogPost.drop_collection()
+
+        author = self.Person(name='Test User')
+        author.save(fsync=True)
 
     def tearDown(self):
         self.Person.drop_collection()
