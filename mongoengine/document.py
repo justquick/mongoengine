@@ -68,6 +68,8 @@ class Document(BaseDocument):
         :meth:`~pymongo.collection.Collection.insert` which will be used as options for the resultant ``getLastError`` command.
         For example, ``save(..., w=2, fsync=True)`` will wait until at least two servers
         have recorded the write and will force an fsync on each server being written to.
+        
+        .. note:: Extra keyword arguments require pymongo version 1.8 or higher
 
         :param safe: check if the operation succeeded before returning
         :param force_insert: only try to create a new document, don't allow 
