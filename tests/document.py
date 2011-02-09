@@ -634,7 +634,10 @@ class DocumentTest(unittest.TestCase):
         BlogPost.drop_collection()
 
         author = self.Person(name='Test User')
-        author.save(fsync=True)
+        if float(pymongo.version) >= 1.8:
+            author.save(fsync=True)
+        else:
+            self.assertRaises(TypeError, author.save, fsync=True)
 
     def tearDown(self):
         self.Person.drop_collection()
